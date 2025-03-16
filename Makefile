@@ -4,7 +4,7 @@ my_printf: main.o my_printf.o
 	@ld -s -o my_printf main.o my_printf.o
 
 main.o: main.cpp
-	@g++ main.cpp -S main.s
+	@g++ main.cpp -S main.s -O0
 	@as main.s -o main.o
 
 my_printf.o: my_printf.s
@@ -12,4 +12,3 @@ my_printf.o: my_printf.s
 
 clean:
 	@rm -rf *.o my_printf
-	
