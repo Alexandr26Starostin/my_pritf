@@ -21,7 +21,7 @@ _start:         ;point of entry in program
 ;print buffer with len on stdout
 ;
 ;entry: rdi = address on str (const char* buffer)
-;       rsi = len of str for printf
+;       rsi = 2 argument
 ;       rdx = 3 argument
 ;       rcx = 4 argument
 ;       r8  = 5 argument
@@ -43,19 +43,63 @@ global my_printf   ;global func: other files can see this func (for ld)
 
 my_printf:
 
+    push rbx
+
+    xor rax, rax
+
+    fill_the_buffer:
+
+    mov rcx, [len_buffer]
+    mov rdx, buffer_for_printf
+
+    continue_fill_the_buffer:
+
+        mov bl, [rdi]
+        cmp bl, 0
+        je break_fill_the_buffer
+
+        mov [rdx], bl
+        inc rdi
+        inc rdx
+        inc rax
+
+        loop continue_fill_the_buffer
+    
+    break_fill_the_buffer:
+
+    ;----------------------------------------------------------------------
+
+    push rdi    ;save rdi = address on next symbol in str
+    push rax
+
     ; interrupt rax = 0x01: print buffer (address = rsi) with len (len = rdx) on flow (flow = rdi) 
-    mov rax, 0x01      ;int  
-    mov rdx, rsi       ;rdx == len
-    mov rsi, rdi       ;rsi == const char* buffer
-    mov rdi, 1         ;rdi == 1 => stdout
+    mov rax, 0x01                ;int  
+
+    mov rdx, [len_buffer]
+    sub rdx, rcx                 ;rdx == len
+
+    mov rsi, buffer_for_printf   ;rsi == const char* buffer
+    mov rdi, 1                   ;rdi == 1 => stdout
     syscall
 
-    mov rax, rsi
+    pop rax
+    pop rdi
+
+    cmp bl, 0
+    je end_of_my_printf
+
+    jmp fill_the_buffer
+
+    end_of_my_printf:
+
+    ;inc rax  last symbol == '\0'
+
+    pop rbx
 
     ret
 ;---------------------------------------------------------------------------------------------------------
 
 section .data   ;has data
 
-len_buffer dw 20
-buffer_for_printf: times 20 db 0x00  
+len_buffer dq 10
+buffer_for_printf: times 20 db 0
