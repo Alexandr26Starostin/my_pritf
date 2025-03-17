@@ -26,7 +26,7 @@ extern "C" int main ()
 	// str[index + 2] = 'e';
 	// str[index + 3] = '\n';
 
-	my_printf ("Hello\n", 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+	my_printf ("Pello--%c\n", '1', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 
 	return 0;
 }
