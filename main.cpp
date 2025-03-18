@@ -26,7 +26,7 @@ extern "C" int main ()
 	// str[index + 2] = 'e';
 	// str[index + 3] = '\n';
 
-	my_printf ("otjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n", 1234567890, '@', 1111122323234232377, 255, 573, 573); 
+	my_printf ("otjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--100%%", 1234567890, '@', 1111122323234232377, 255, 573, 573, "I'am Sasha)\nhhh"); 
 
 	return 0;
 }

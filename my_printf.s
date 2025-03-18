@@ -218,7 +218,7 @@ print_symbols_from_stack:
     pop r9
     add rax, r9
 
-    inc rdi
+    inc rdi ;skip 'type'
 
     push r13
 
@@ -258,7 +258,7 @@ print_argument:
     inc rdi  ;skip '%'
 
     mov bl, [rdi]
-    sub bl, 'a'     ;bl = symbol_after_% - 'a'
+    sub bl, '%'     ;bl = symbol_after_% - 'a'
 
     jmp [type_of_argument + rbx * 8]   ;use jmp_table
  
@@ -389,7 +389,52 @@ print_argument:
     pop r14
 
     jmp end_print_argument
+    ;----------------------------------------------------------------------
 
+    type_s:
+
+        push rdi
+
+        mov rdi, [rbp]     ;rpb = address on free argument (== const char*)
+        add rbp, 8         ;rbp = address on the next argument
+
+        continue_print_str:
+
+            mov bl, [rdi]     
+
+            cmp bl, 0   
+            je break_print_str   
+
+            ;print_usual_symbol
+            mov [rdx], bl
+            inc rdi
+            inc rdx
+            inc rax
+
+            loop continue_print_str  
+
+        ;----------------------------------------------------------------------
+
+        call print_buffer   
+
+        jmp continue_print_str      ;fill buffer again
+
+        break_print_str:
+        pop rdi
+        inc rdi    ;skip 's'
+        jmp end_print_argument
+    ;----------------------------------------------------------------------
+
+    type_percent:
+        mov bl, '%'
+
+        mov [rdx], bl
+        inc rdi     ;skip '%'
+        inc rdx
+        inc rax
+        dec rcx
+
+        jmp end_print_argument
     ;----------------------------------------------------------------------
 
     end_print_argument:
@@ -405,13 +450,16 @@ buffer_for_printf: times 16 db 0
 
 align 8    ;8 bytes
 type_of_argument:     ;jmp_table
-    dq   default_
+    dq   type_percent
+    times 59 dq default_
     dq   type_b
     dq   type_c
     dq   type_d
     times 10 dq default_
     dq   type_o
-    times 8 dq default_
+    times 3 dq default_
+    dq   type_s
+    times 4 dq default_
     dq   type_x
     times 2 dq default_
     
