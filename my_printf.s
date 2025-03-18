@@ -72,8 +72,6 @@ my_printf:
     xor rax, rax    ;rax = 0
     xor rbx, rbx    ;rbx = 0
 
-    fill_the_buffer:
-
     mov rcx, [len_buffer]        ;rcx = index of count symbols in buffer
     mov rdx, buffer_for_printf   ;rdx = address of buffer
 
@@ -97,6 +95,7 @@ my_printf:
 
         do_print_argument:
         call print_argument
+        inc rcx
 
         skip_print_argument:
         loop continue_fill_the_buffer  ;while (rcx != 0) {continue_fill_the_buffer ();}
@@ -105,30 +104,12 @@ my_printf:
 
     ;----------------------------------------------------------------------
 
-    push rdi    ;save rdi == address on next symbol in str
-    push rax    ;save rax == count of writing symbols
-    push r10    ;save r10 == old rbp           (syscall uses it)
-    push r11    ;save r11 == address to return (syscall uses it)
-
-    ; interrupt rax = 0x01: print buffer (address = rsi) with len (len = rdx) on flow (flow = rdi) 
-    mov rax, 0x01                ;int  
-
-    mov rdx, [len_buffer]
-    sub rdx, rcx                 ;rdx == len
-
-    mov rsi, buffer_for_printf   ;rsi == const char* buffer
-    mov rdi, 1                   ;rdi == 1 => stdout
-    syscall
-
-    pop r11
-    pop r10
-    pop rax
-    pop rdi    
+    call print_buffer   
 
     cmp bl, 0
     je end_of_my_printf      ;if (bl == '\0') {end_print ();}
 
-    jmp fill_the_buffer      ;fill buffer again
+    jmp continue_fill_the_buffer      ;fill buffer again
 
     end_of_my_printf:   ;rax = count of writing symbols
 
@@ -161,7 +142,42 @@ my_printf:
 
 
 
+;---------------------------------------------------------------------------------------------------------
+;                                           print_buffer
+;
+;entry: 
+;
+;exit:  
+;
+;destr:  
+;---------------------------------------------------------------------------------------------------------
+print_buffer:
 
+    push rdi    ;save rdi == address on next symbol in str
+    push rax    ;save rax == count of writing symbols
+    push r10    ;save r10 == old rbp           (syscall uses it)
+    push r11    ;save r11 == address to return (syscall uses it)
+
+    ; interrupt rax = 0x01: print buffer (address = rsi) with len (len = rdx) on flow (flow = rdi) 
+    mov rax, 0x01                ;int  
+
+    mov rdx, [len_buffer]
+    sub rdx, rcx                 ;rdx == len
+
+    mov rsi, buffer_for_printf   ;rsi == const char* buffer
+    mov rdi, 1                   ;rdi == 1 => stdout
+    syscall
+
+    pop r11
+    pop r10
+    pop rax
+    pop rdi 
+
+    mov rcx, [len_buffer]        ;rcx = index of count symbols in buffer
+    mov rdx, buffer_for_printf   ;rdx = address of buffer
+
+    ret
+;---------------------------------------------------------------------------------------------------------
 
 
 
@@ -194,6 +210,7 @@ my_printf:
 ;       rax = count of writing symbols
 ;       rbp = address on arguments
 ;       rcx = count of free symbols in buffer
+;       bl  = '%', symbol_after_%
 ;
 ;exit:  
 ;
@@ -219,6 +236,66 @@ print_argument:
         inc rax
         
         jmp end_print_argument
+
+    ;----------------------------------------------------------------------
+
+    type_d:   ;%d
+
+        push r12
+
+        push rax
+        mov r12, rdx  ;save rax, rdx for div
+
+        mov rax, [rbp]     ;rpb = address on free argument (== int_10)
+        add rbp, 8         ;rbp = address on the next argument
+
+        xor r8, r8  ;r8 = 0 (count of symbols in number_10)
+
+        count_next_symbol_in_number_10:
+
+        cqo
+        mov r9, 10
+        div r9   ;rax = rax // 10
+                 ;rdx = rax %  10
+        inc r8
+        push rdx
+
+        cmp rax, 0
+        jne count_next_symbol_in_number_10
+
+        mov rax, r8
+        mov rdx, r12
+
+        ;---------------------------------------------------------------
+
+        print_symbol_in_number_10:
+
+            cmp rcx, 0
+            jne continue_print_next_symbol_10 
+
+            call print_buffer
+            continue_print_next_symbol_10:
+
+            pop rbx
+            add rbx, '0'
+            mov [rdx], bl            
+            inc rdx
+            dec rcx
+            dec r8
+
+            cmp r8, 0
+            jne print_symbol_in_number_10
+
+        pop r9
+        add rax, r9
+
+        pop r12
+
+        inc rdi
+
+        jmp end_print_argument
+
+    ;----------------------------------------------------------------------
     
     end_print_argument:
 
@@ -230,11 +307,13 @@ print_argument:
 
 section .data   ;has data
 
-len_buffer dq 16
-buffer_for_printf: times 16 db 0
+len_buffer dq 3
+buffer_for_printf: times 3 db 0
 
 align 8    ;8 bytes
 type_of_argument:     ;jmp_table
     dq   type_a
     dq   type_b
     dq   type_c
+    dq   type_d
+
