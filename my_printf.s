@@ -183,11 +183,47 @@ print_buffer:
 
 
 
+;---------------------------------------------------------------------------------------------------------
+;                                       print_symbols_from_stack
+;
+;
+;entry: 
+;
+;exit:  
+;
+;destr:    
+;
+;---------------------------------------------------------------------------------------------------------
+print_symbols_from_stack:
 
+    pop r13
 
+    print_symbol:
 
+        cmp rcx, 0
+        jne continue_print_next_symbol
 
+        call print_buffer
+        continue_print_next_symbol:
 
+        pop rbx
+        mov [rdx], bl            
+        inc rdx
+        dec rcx
+        dec r8
+
+        cmp r8, 0
+        jne print_symbol
+
+    pop r9
+    add rax, r9
+
+    inc rdi
+
+    push r13
+
+    ret
+;---------------------------------------------------------------------------------------------------------
 
 
 
@@ -233,6 +269,7 @@ print_argument:
         add rbp, 8         ;rbp = address on the next argument
         inc rdi            
         inc rdx
+        dec rcx
         inc rax
         
         jmp end_print_argument
@@ -240,7 +277,7 @@ print_argument:
     ;----------------------------------------------------------------------
 
     type_d:   ;%d
-
+        push r13
         push r12
 
         push rax
@@ -258,6 +295,7 @@ print_argument:
         div r9   ;rax = rax // 10
                  ;rdx = rax %  10
         inc r8
+        add rdx, '0'
         push rdx
 
         cmp rax, 0
@@ -268,52 +306,113 @@ print_argument:
 
         ;---------------------------------------------------------------
 
-        print_symbol_in_number_10:
-
-            cmp rcx, 0
-            jne continue_print_next_symbol_10 
-
-            call print_buffer
-            continue_print_next_symbol_10:
-
-            pop rbx
-            add rbx, '0'
-            mov [rdx], bl            
-            inc rdx
-            dec rcx
-            dec r8
-
-            cmp r8, 0
-            jne print_symbol_in_number_10
-
-        pop r9
-        add rax, r9
+        call print_symbols_from_stack        
 
         pop r12
-
-        inc rdi
+        pop r13
 
         jmp end_print_argument
 
     ;----------------------------------------------------------------------
     
+    type_b:    ;%b
+        push r14
+        mov r14, 1
+        jmp continue_print_argument_with_footing
+
+    type_o:    ;%o
+        push r14
+        mov r14, 3
+        jmp continue_print_argument_with_footing
+
+    type_x:    ;%x
+        push r14
+        mov r14, 4
+        jmp continue_print_argument_with_footing
+
+    continue_print_argument_with_footing:
+    push r13
+    push r12
+    push r15
+
+    push rax
+
+    mov rax, [rbp]     ;rpb = address on free argument (== int_10)
+    add rbp, 8         ;rbp = address on the next argument
+
+    xor r8, r8  ;r8 = 0 (count of symbols in number_10)
+
+    mov r15, rcx
+    mov rcx, r14
+    count_next_symbol_in_number:
+
+    nop
+    nop
+    nop
+
+    mov r12, rax
+    shr rax, cl    ;rax = rax // cl
+    shl rax, cl
+    sub r12, rax  ;r12 = rax %  cl
+    shr rax, cl
+
+    cmp r12, 10
+    js have_number
+
+    ;have_latter
+    sub r12, 10
+    add r12, 'A'
+    jmp write_r12_in_stack
+
+    have_number:
+    add r12, '0'
+
+    write_r12_in_stack:
+
+    inc r8
+    push r12
+
+    cmp rax, 0
+    jne count_next_symbol_in_number
+
+    mov rcx, r15
+
+    mov rax, r8
+
+    ;---------------------------------------------------------------
+
+    call print_symbols_from_stack
+    
+    pop r15
+    pop r12
+    pop r13
+    pop r14
+
+    jmp end_print_argument
+
+    ;----------------------------------------------------------------------
+
     end_print_argument:
 
-    type_a:   ;default
-    type_b:
+    default_:
 
     ret
 ;---------------------------------------------------------------------------------------------------------
 
 section .data   ;has data
-
-len_buffer dq 3
-buffer_for_printf: times 3 db 0
+len_buffer dq 16
+buffer_for_printf: times 16 db 0
 
 align 8    ;8 bytes
 type_of_argument:     ;jmp_table
-    dq   type_a
+    dq   default_
     dq   type_b
     dq   type_c
     dq   type_d
+    times 10 dq default_
+    dq   type_o
+    times 8 dq default_
+    dq   type_x
+    times 2 dq default_
+    
 
