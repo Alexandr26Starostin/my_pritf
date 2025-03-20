@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 extern "C" int my_printf (const char* str, ...);
 
 //const int MAX_LEN_BUFFER = 20;
@@ -26,9 +28,13 @@ extern "C" int main ()
 	// str[index + 2] = 'e';
 	// str[index + 3] = '\n';
 
-	my_printf ("%uotjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--100%%", 1089, 1234567890, '@', 1111122323234232377, 255, 573, 573, "I'am Sasha)\nhhh"); 
+	printf ("\n\nPrivet!!!\n");
 
-	//my_printf ("%o", 45);
+	my_printf ("%dotjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n", 18, 1234567890, '@', 1111122323234232377, 255, 573, 573, "I'am Sasha)\nhhh"); 
+
+	my_printf ("\n%o\n", 45);
+
+	printf ("\n\nPrivet%d!!!\n%s\n", 1234, "dkidiin");
 
 	return 0;
 }

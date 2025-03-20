@@ -2,3 +2,4 @@ my_printf
 *.o
 *.lst
 main.s
+temp.s

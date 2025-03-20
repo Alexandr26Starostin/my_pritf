@@ -3,18 +3,7 @@
 ;has code with my_printf                   
 ;---------------------------------------------------------------------------------------
 section .text   ;has text with program
-global _start   ;ld can see the point of entry in program (for ld)
-extern main     ;main in other file (for ld)
-
-_start:         ;point of entry in program
-    call main  
-
-    mov rdi, rax       ;return rdi;  //rdi == rax
-    mov rax, 0x3C      ; end of program
-    syscall
-
-;---------------------------------------------------------------------------------------------------------
-
+global my_printf   ;global func: other files can see this func (for ld) 
 
 ;---------------------------------------------------------------------------------------------------------
 ;                                       my_printf 
@@ -42,7 +31,6 @@ _start:         ;point of entry in program
 ;mustn't save: others registers
 ;---------------------------------------------------------------------------------------------------------
 
-global my_printf   ;global func: other files can see this func (for ld) 
 
 my_printf:
 
@@ -268,10 +256,11 @@ print_symbols_from_stack:
 ;
 ;use:   r9  = 10: footing of 10 calculus system (for %d)
 ;       r11 =   
-;       r12 = save rdx = address on the next free place in buffer (for %d)
+;       r12 = save rdx = address on the next free place in buffer (for %d, %u)
 ;           = save rax = value of argument from stack (for %b, %o, %x)
 ;           = value % cl = value % r14 = little number from value(for %b, %o, %x)
-;       r13 = save address of return of print_symbols_from_stack (for %d, %b, %o, %x)    
+;       r13 = save address of return of print_symbols_from_stack (for %d, %u %b, %o, %x)
+;           = for mask (for %d, %u)    
 ;       r14 = footing of calculus system (for %b, %o, %x)
 ;       r15 = save rcx = count of free places in buffer (for %b, %o, %x)
 ;---------------------------------------------------------------------------------------------------------
@@ -301,14 +290,21 @@ print_argument:
     ;----------------------------------------------------------------------
 
     type_u:   ;%u
+        push r13 
+        push r12   ;must save r12, r13
+
+        jmp continue_write_int_10
+
     type_d:   ;%d
         push r13 
         push r12   ;must save r12, r13
 
+        continue_write_int_10:
+
         push rax   ;save rax for end func, when func will count new rax = count of writing symbols
         mov r12, rdx  ;save rax, rdx for div
 
-        mov rax, [rbp]     ;rpb = address on next argument (== int_10)
+        mov rax, [rbp]     ;rpb = address on next argument (rax = value)
         add rbp, 8         ;rbp = address on the next argument
 
         xor r8, r8  ;r8 = 0 (count of numbers in value symbols for number_10)
