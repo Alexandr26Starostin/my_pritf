@@ -300,6 +300,7 @@ print_argument:
 
     ;----------------------------------------------------------------------
 
+    type_u:   ;%u
     type_d:   ;%d
         push r13 
         push r12   ;must save r12, r13
@@ -478,10 +479,11 @@ section .data   ;has data
 len_buffer dq 16   ;len buffer == max count of free places in buffer
 buffer_for_printf: times 16 db 0  ;buffer for symbols
 
+section .rodata
 align 8    ;8 bytes between labels
 type_of_argument:       ;jmp_table
     dq   type_percent   ;%%
-    times 59 dq default_
+    times 60 dq default_
     dq   type_b         ;%b
     dq   type_c         ;%c
     dq   type_d         ;%d
@@ -489,7 +491,9 @@ type_of_argument:       ;jmp_table
     dq   type_o         ;%o
     times 3 dq default_
     dq   type_s         ;%s
-    times 4 dq default_
+    times 1 dq default_
+    dq   type_u         ;%u
+    times 2 dq default_
     dq   type_x         ;%x
     times 2 dq default_
     
