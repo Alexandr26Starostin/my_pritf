@@ -289,23 +289,26 @@ print_argument:
 
     ;----------------------------------------------------------------------
 
+    type_d:   ;%d
+        ;push r13 
+        ;push r12   ;must save r12, r13
+        
+        ;mov r13, 1
+        ;mov [flag_of_sign], r13
+
+        ;jmp continue_write_int_10
+
     type_u:   ;%u
         push r13 
         push r12   ;must save r12, r13
-
-        jmp continue_write_int_10
-
-    type_d:   ;%d
-        push r13 
-        push r12   ;must save r12, r13
-
-        continue_write_int_10:
 
         push rax   ;save rax for end func, when func will count new rax = count of writing symbols
         mov r12, rdx  ;save rax, rdx for div
 
         mov rax, [rbp]     ;rpb = address on next argument (rax = value)
         add rbp, 8         ;rbp = address on the next argument
+
+        continue_write_int_10:
 
         xor r8, r8  ;r8 = 0 (count of numbers in value symbols for number_10)
 
@@ -329,6 +332,9 @@ print_argument:
         ;---------------------------------------------------------------
 
         call print_symbols_from_stack        
+
+        ;mov r13, 0
+        ;mov [flag_of_sign], r13
 
         pop r12
         pop r13   ;save r12, r13
@@ -474,6 +480,8 @@ print_argument:
 section .data   ;has data
 len_buffer dq 16   ;len buffer == max count of free places in buffer
 buffer_for_printf: times 16 db 0  ;buffer for symbols
+;flag_of_sign dq 0
+mask_for_sign dd 1<<31
 
 section .rodata
 align 8    ;8 bytes between labels
