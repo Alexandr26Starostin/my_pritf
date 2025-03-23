@@ -430,19 +430,10 @@ print_argument:
     shr rax, cl    ;rax = rax >> cl
                    ;rax = value // cl
 
-    cmp r12, 10   
-    js have_number    ;r12 < 10 --> r2 - number
-
-    ;have_latter
-    sub r12, 10
-    add r12, 'A'    ;number --> 'latter' (acscii)
-    jmp write_r12_in_stack
-
-    have_number:
-    add r12, '0'    ;number --> 'number' (ascii)
+    mov r12, [numbers_and_letters + r12 * 8]  ;r12 = numbers_and_letters [r12]    //char numbers_and_letters [16] = {'0', '1', ..., 'E', 'F'};
 
     ;pur number in stack
-    write_r12_in_stack:
+    ;write_r12_in_stack
 
     inc r8    ;+1 count numbers in stack
     push r12  ;pur number in stack
@@ -513,6 +504,7 @@ section .data   ;has data
 len_buffer dq 16   ;len buffer == max count of free places in buffer
 buffer_for_printf: times 16 db 0  ;buffer for symbols
 mask_for_sign dd 1<<31   ;mask_for_sign in int (for %d)
+numbers_and_letters dq '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 
 section .rodata
 align 8    ;8 bytes between labels
