@@ -36,7 +36,7 @@ extern "C" int main ()
 	//printf ("\n\nPrivet%d!!!\n%s\n", 1234, "dkidiin");
 
 	//my_printf ("%dotjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n%d %s %x %d%%%c%b\n", -181111111, 1234567890, '@', 1111122323234232377, 255, 573, 573, "I'am Sasha)\nhhh", 1, "love", 3802, 100, 33, 126); 
-	my_printf ("%dotjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n", -181111111, 1234567890, '@', 23234232377, 255, 573, 573, "I am Sasha)\nhhh"); 
+	my_printf ("%dotjbotjibithbsp%d------%c%d%%fjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n", -181111111, 1234567890, '@', 23234232377, 255, 573, 573, "I am Sasha)\nhhh"); 
 
 	//my_printf ("%d", -1);
 

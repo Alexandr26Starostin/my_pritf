@@ -268,8 +268,28 @@ print_argument:
 
     mov bl, [rdi]   ;bl = <type> (=symbol_after_%)
 
+    ;-----------------------------------------------------------------------------------------------------
+    ;type_percent:     ;%%
+    cmp bl, '%'
+    jne other_type_of_argument
+
+    ;bl = '%'
+
+    mov [rdx], bl   ;print '%'
+    inc rdi         ;skip '%'
+    inc rdx         ;+1 - next free place in buffer
+    inc rax         ;+1 - count of writing symbols
+    dec rcx         ;-1 - count of free places in buffer
+
+    jmp end_print_argument  ;end print_argument
+
+
+    ;-----------------------------------------------------------------------------------------------------
+
+    other_type_of_argument:
+
                                                ;bl = symbol_after_% - '%'  - shifting for jmp_table
-    jmp [type_of_argument + (rbx - '%') * 8]   ;use jmp_table (rbx = bl = shifting for jmp_table)
+    jmp [type_of_argument + (rbx - 'b') * 8]   ;use jmp_table (rbx = bl = shifting for jmp_table)
  
     ;----------------------------------------------------------------------
 
@@ -359,9 +379,6 @@ print_argument:
         ;---------------------------------------------------------------
 
         call print_symbols_from_stack        
-
-        ;mov r13, 0
-        ;mov [flag_of_sign], r13
 
         pop r12
         pop r13   ;save r12, r13
@@ -485,18 +502,6 @@ print_argument:
         jmp end_print_argument ;end print_argument
     ;----------------------------------------------------------------------
 
-    type_percent:     ;%%
-        mov bl, '%'   ;bl = '%'
-
-        mov [rdx], bl   ;print '%'
-        inc rdi         ;skip '%'
-        inc rdx         ;+1 - next free place in buffer
-        inc rax         ;+1 - count of writing symbols
-        dec rcx         ;-1 - count of free places in buffer
-
-        jmp end_print_argument  ;end print_argument
-    ;----------------------------------------------------------------------
-
     end_print_argument:
 
     default_:  ;default
@@ -512,8 +517,6 @@ mask_for_sign dd 1<<31   ;mask_for_sign in int (for %d)
 section .rodata
 align 8    ;8 bytes between labels
 type_of_argument:       ;jmp_table
-    dq   type_percent   ;%%
-    times 'b' - '%' - 1 dq default_
     dq   type_b         ;%b 
     dq   type_c         ;%c
     dq   type_d         ;%d
@@ -525,6 +528,4 @@ type_of_argument:       ;jmp_table
     dq   type_u         ;%u
     times 'x' - 'u' - 1 dq default_
     dq   type_x         ;%x
-    times 'z' - 'x'     dq default_
-    
-
+    ;times 'z' - 'x'     dq default_
