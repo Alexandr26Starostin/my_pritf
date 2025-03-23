@@ -261,6 +261,7 @@ print_symbols_from_stack:
 ;           = old_rax + 1 (for %d if print '-')
 ;       r14 = footing of calculus system (for %b, %o, %x)
 ;       r15 = save rcx = count of free places in buffer (for %b, %o, %x)
+;       rsi = mask_for_remain (for %b, %o, %x)
 ;---------------------------------------------------------------------------------------------------------
 print_argument:
 
@@ -390,16 +391,25 @@ print_argument:
     type_b:    ;%b
         push r14    ;must save r14
         mov r14, 1  ;r14 = footing of calculus system = 2^1 = 2 (for shiftings)
+
+        mov rsi, 0x0000000000000001   ;rsi = mask_for_remain (for little number from value)
+
         jmp continue_print_argument_with_footing
 
     type_o:    ;%o
         push r14    ;must save r14
         mov r14, 3  ;r14 = footing of calculus system = 2^3 = 8 (for shiftings)
+
+        mov rsi, 0x0000000000000007   ;rsi = mask_for_remain (for little number from value)
+
         jmp continue_print_argument_with_footing
 
     type_x:    ;%x
         push r14    ;must save r14
         mov r14, 4  ;r14 = footing of calculus system = 2^4 = 16 (for shiftings)
+
+        mov rsi, 0x000000000000000f    ;rsi = mask_for_remain (for little number from value)
+
         jmp continue_print_argument_with_footing
 
     continue_print_argument_with_footing:
@@ -415,20 +425,19 @@ print_argument:
 
     xor r8, r8  ;r8 = 0 (count of numbers in value symbols for number_r14)
 
+    ;-----------------------------------------------------------------------------------------------------------
     mov r15, rcx    ;save rcx = count of free places in buffer
     mov rcx, r14    ;rcx = cl = r14 = footing of calculus system
 
     count_next_symbol_in_number:
-    mov r12, rax   ;save rax
+    mov r12, rax   ;r12 = rax 
 
-    shr rax, cl  
-    shl rax, cl    ;rax = (rax >> cl) << cl
-                   
-    sub r12, rax   ;r12 = r12 - rax 
-                   ;r12 = value % cl = little number from value
+    and r12, rsi   ;r12 = r12 and rsi
+                   ;r12 = value % (2^cl)  (little number from value)
 
     shr rax, cl    ;rax = rax >> cl
-                   ;rax = value // cl
+                   ;rax = value // (2^cl)
+    ;-----------------------------------------------------------------------------------------------------------
 
     mov r12, [numbers_and_letters + r12 * 8]  ;r12 = numbers_and_letters [r12]    //char numbers_and_letters [16] = {'0', '1', ..., 'E', 'F'};
 
