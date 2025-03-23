@@ -23,15 +23,13 @@ global my_printf   ;global func: other files can see this func (for ld)
 ;       rcx = index of count free places in buffer
 ;       rdx = address of buffer
 ;       rdi = address on str, 
-;             stdout
+;           = stdout
 ;       r10 = old rbp 
 ;       r11 = address to return
 ;
 ;must save:    rbp, rbx, r12-15
 ;mustn't save: others registers
 ;---------------------------------------------------------------------------------------------------------
-
-
 my_printf:
 
     ;------------------------------------------------------------------------------
@@ -232,7 +230,7 @@ print_symbols_from_stack:
 ;---------------------------------------------------------------------------------------------------------
 ;                                       print_argument
 ;print argument of str
-;can print: %c, %d, %b, %o, %x, %s, %%
+;can print: %c, %d, %b, %o, %x, %s, %%  (%d - for int)
 ;
 ;entry: rdi = address on next symbol in str (const char* str)
 ;       rdx = address on the next free place in buffer for printf (const char* buffer)
@@ -255,12 +253,12 @@ print_symbols_from_stack:
 ;       r8  = count of numbers in stack from value (for %d, %b, %o, %x)
 ;
 ;use:   r9  = 10: footing of 10 calculus system (for %d)
-;       r11 =   
 ;       r12 = save rdx = address on the next free place in buffer (for %d, %u)
 ;           = save rax = value of argument from stack (for %b, %o, %x)
 ;           = value % cl = value % r14 = little number from value(for %b, %o, %x)
 ;       r13 = save address of return of print_symbols_from_stack (for %d, %u %b, %o, %x)
-;           = for mask (for %d, %u)    
+;           = for mask_for_sign (for %d)    
+;           = old_rax + 1 (for %d if print '-')
 ;       r14 = footing of calculus system (for %b, %o, %x)
 ;       r15 = save rcx = count of free places in buffer (for %b, %o, %x)
 ;---------------------------------------------------------------------------------------------------------
@@ -269,9 +267,9 @@ print_argument:
     inc rdi  ;skip '%'
 
     mov bl, [rdi]   ;bl = <type> (=symbol_after_%)
-    sub bl, '%'     ;bl = symbol_after_% - '%'  - shifting for jmp_table
 
-    jmp [type_of_argument + rbx * 8]   ;use jmp_table (rbx = bl = shifting for jmp_table)
+                                               ;bl = symbol_after_% - '%'  - shifting for jmp_table
+    jmp [type_of_argument + (rbx - '%') * 8]   ;use jmp_table (rbx = bl = shifting for jmp_table)
  
     ;----------------------------------------------------------------------
 
@@ -289,14 +287,42 @@ print_argument:
 
     ;----------------------------------------------------------------------
 
-    type_d:   ;%d
-        ;push r13 
-        ;push r12   ;must save r12, r13
-        
-        ;mov r13, 1
-        ;mov [flag_of_sign], r13
+    type_d:   ;%d   (for int)
+        push r13 
+        push r12   ;must save r12, r13
 
-        ;jmp continue_write_int_10
+        push rax   ;save rax for end func, when func will count new rax = count of writing symbols
+        mov r12, rdx  ;save rax, rdx for div and rdx for sign
+
+        mov rax, [rbp]     ;rpb = address on next argument (rax = value)
+        add rbp, 8         ;rbp = address on the next argument
+        
+        mov r13, [mask_for_sign]   ;r13 = mask_for_sign
+
+        xor rdx, rdx   ;rdx = 0
+        mov edx, eax  
+        and rdx, r13   ;rdx = eax and r13
+
+        jz continue_write_int_10  ;rdx == 0 --> unsigned value
+                                  ;rdx != 0 -->   signed value
+
+        pop r13
+        inc r13  ;r13 = old_rax += 1
+        push r13 ;push new_rax
+
+        neg eax   ;eax *= -1  ;rax = 0...0not(eax)
+
+        mov rdx, r12  ;rdx = address on the free place in buffer (old rdx)
+
+        mov [rdx], byte '-'   ;put '-' in buffer         
+        inc rdx         ;+1 - next free symbol in buffer
+        dec rcx         ;-1 free place in buffer
+
+        ;rcx == 0: will be checked by print_symbols_from_stack
+
+        mov r12, rdx ;save rdx
+
+        jmp continue_write_int_10
 
     type_u:   ;%u
         push r13 
@@ -308,6 +334,7 @@ print_argument:
         mov rax, [rbp]     ;rpb = address on next argument (rax = value)
         add rbp, 8         ;rbp = address on the next argument
 
+        ;-----------------------------------------------------------------------------------------------------
         continue_write_int_10:
 
         xor r8, r8  ;r8 = 0 (count of numbers in value symbols for number_10)
@@ -480,25 +507,24 @@ print_argument:
 section .data   ;has data
 len_buffer dq 16   ;len buffer == max count of free places in buffer
 buffer_for_printf: times 16 db 0  ;buffer for symbols
-;flag_of_sign dq 0
-mask_for_sign dd 1<<31
+mask_for_sign dd 1<<31   ;mask_for_sign in int (for %d)
 
 section .rodata
 align 8    ;8 bytes between labels
 type_of_argument:       ;jmp_table
     dq   type_percent   ;%%
-    times 60 dq default_
-    dq   type_b         ;%b
+    times 'b' - '%' - 1 dq default_
+    dq   type_b         ;%b 
     dq   type_c         ;%c
     dq   type_d         ;%d
-    times 10 dq default_
+    times 'o' - 'd' - 1 dq default_
     dq   type_o         ;%o
-    times 3 dq default_
+    times 's' - 'o' - 1 dq default_
     dq   type_s         ;%s
-    times 1 dq default_
+    times 'u' - 's' - 1 dq default_
     dq   type_u         ;%u
-    times 2 dq default_
+    times 'x' - 'u' - 1 dq default_
     dq   type_x         ;%x
-    times 2 dq default_
+    times 'z' - 'x'     dq default_
     
 

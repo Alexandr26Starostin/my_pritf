@@ -7,7 +7,7 @@ extern "C" int my_printf (const char* str, ...);
 
 extern "C" int main ()
 {
-	//my_printf ("Hello\n", 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+	my_printf ("Hello\n", 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
 	// char str[MAX_LEN_STR] = "";
 
@@ -28,12 +28,17 @@ extern "C" int main ()
 	// str[index + 2] = 'e';
 	// str[index + 3] = '\n';
 
-	printf ("\n\nPrivet!!!\n");
+	//printf ("\n\nPrivet!!!\n");
 
-	my_printf ("%dotjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n", -181111111, 1234567890, '@', 1111122323234232377, 255, 573, 573, "I'am Sasha)\nhhh"); 
+	//my_printf ("%dotjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n", -181111111, 1234567890, '@', 1111122323234232377, 255, 573, 573, "I'am Sasha)\nhhh"); 
 
 
-	printf ("\n\nPrivet%d!!!\n%s\n", 1234, "dkidiin");
+	//printf ("\n\nPrivet%d!!!\n%s\n", 1234, "dkidiin");
 
-	return my_printf ("\n%o\n", 45);;
+	//my_printf ("%dotjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n%d %s %x %d%%%c%b\n", -181111111, 1234567890, '@', 1111122323234232377, 255, 573, 573, "I'am Sasha)\nhhh", 1, "love", 3802, 100, 33, 126); 
+	my_printf ("%dotjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n", -181111111, 1234567890, '@', 23234232377, 255, 573, 573, "I am Sasha)\nhhh"); 
+
+	//my_printf ("%d", -1);
+
+	return 0;
 }
