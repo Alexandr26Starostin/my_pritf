@@ -37,7 +37,7 @@ my_printf:
 
     mov r10, rbp  ;r10 = old rbp
     
-    pop r11   ;r11 = address to return
+    pop r11   ;r11 = address to return (save it)
 
     push r9
     push r8
@@ -103,7 +103,7 @@ my_printf:
     pop rbx     ;must save rbx
 
     add rsp, 40   ;rsp = rsp + 5 * 8 (old value rsp - in beginning of program; 5 - push 5 arguments)
-    push r11      ;r11 = address to return
+    push r11      ;r11 = address to return (this address must be on stack: address_in_stack % 16 == 0 - because it important for SSE)
     mov rbp, r10  ;r10 = old rbp
 
     ;stack before rsp 'now' == stack before rsp 'in beginning of program'
@@ -516,7 +516,7 @@ mask_for_sign dd 1<<31   ;mask_for_sign in int (for %d)
 numbers_and_letters dq '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 
 section .rodata
-align 8    ;8 bytes between labels
+align 8    ;8 bytes between labels and address_of_labels % 8 == 0 
 type_of_argument:       ;jmp_table
     dq   type_b         ;%b 
     dq   type_c         ;%c
