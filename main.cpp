@@ -28,17 +28,17 @@ extern "C" int main ()
 	// str[index + 2] = 'e';
 	// str[index + 3] = '\n';
 
-	//printf ("\n\nPrivet!!!\n");
+	printf ("\n\nPrivet!!!\n");
 
-	//my_printf ("%dotjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n", -181111111, 1234567890, '@', 1111122323234232377, 255, 573, 573, "I'am Sasha)\nhhh"); 
+	my_printf ("%dotjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n", -181111111, 1234567890, '@', 1111122323234232377, 255, 573, 573, "I'am Sasha)\nhhh"); 
 
 
-	//printf ("\n\nPrivet%d!!!\n%s\n", 1234, "dkidiin");
+	printf ("\n\nPrivet%d!!!\n%s\n", 1234, "dkidiin");
 
-	//my_printf ("%dotjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n%d %s %x %d%%%c%b\n", -181111111, 1234567890, '@', 1111122323234232377, 255, 573, 573, "I'am Sasha)\nhhh", 1, "love", 3802, 100, 33, 126); 
+	my_printf ("%dotjbotjibithbsp%d------%c%dfjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n\n\n%d %s %x %d%%%c%b\n\n\n", -181111111, 1234567890, '@', 1111122323234232377, 255, 573, 573, "I'am Sasha)\nhhh", -1, "love", 3802, 100, 33, 126); 
 	my_printf ("%dotjbotjibithbsp%d------%c%d%%fjjjjjjjjjlllllllllllllllllllllllllllllllllllo__%b!\n%x---%o\n\n%s!!!1123456789--dddd\n", -181111111, 1234567890, '@', 23234232377, 255, 573, 573, "I am Sasha)\nhhh"); 
 
-	//my_printf ("%d", -1);
+	my_printf ("%d", -1);
 
 	return 0;
 }
